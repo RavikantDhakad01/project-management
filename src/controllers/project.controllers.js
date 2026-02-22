@@ -72,6 +72,15 @@ const getProjects = async (req, res, next) => {
 const getProjectById = async (req, res, next) => {
     try {
 
+        const { projectId } = req.body
+        const project = await Project.findById(projectId)
+
+        if (!project) {
+            throw new apiErrors(404, "project not found")
+        }
+
+        return res.status(200).json(new ApiResponse(200, project, "project details fethed successfully"))
+
     } catch (error) {
         return next(error)
     }
