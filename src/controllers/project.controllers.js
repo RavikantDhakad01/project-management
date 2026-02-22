@@ -49,10 +49,10 @@ const getProjects = async (req, res, next) => {
                     _id: 0,
                     role: 1,
                     project: {
-                        name: 1,
-                        _id: 1,
-                        description: 1,
-                        members: 1,
+                        name: "$projects.name",
+                        _id: "$projects._id",
+                        description: "$projects.description",
+                        members: "$projects.members",
                         createdAt: 1,
                         createdBy: 1
                     }
@@ -143,7 +143,7 @@ const deleteProject = async (req, res, next) => {
         if (!deletedProject) {
             throw new apiErrors(404, "Project not found")
         }
-        return res.status(200).json(200, deletedProject, "Project deleted successfully")
+        return res.status(200).json(new ApiResponse(200, deletedProject, "Project deleted successfully"))
     } catch (error) {
         return next(error)
     }
