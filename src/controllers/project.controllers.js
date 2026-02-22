@@ -169,6 +169,28 @@ const getProjectMembers = async (req, res, next) => {
 
 const updateMemberRole = async (req, res, next) => {
     try {
+        const { projectId, userId } = req.params
+        const { newRole } = req.body
+        if (!AvailableUserRole.includes(newRole)) {
+            throw new apiErrors(400, "invaild member role")
+        }
+
+        const updatedMemberRole = await ProjectMember.findOneAndUpdate({
+            project: new mongoose.Types.ObjectId(projectId),
+            user: new mongoose.Types.ObjectId(userId)
+        },
+            {
+                role: newRole
+            },
+            {
+                new: true
+            })
+        if (!updatedMemberRole) {
+            throw new apiErrors(404, "project member not found")
+        }
+
+        return res.status(200).json(new ApiResponse(200, updateMemberRole, "member role updated successfully"))
+
 
     } catch (error) {
         return next(error)
@@ -176,6 +198,18 @@ const updateMemberRole = async (req, res, next) => {
 }
 const deleteMember = async (req, res, next) => {
     try {
+        const { projectId, userId } = req.params
+
+        const projectMember = await ProjectMember.findOneAndDelete({
+            project: new mongoose.Types.ObjectId(projectId),
+            user: new mongoose.Types.ObjectId(userId)
+        })
+
+        if (!projectMember) {
+            throw new apiErrors(404, "member not found")
+        }
+
+        return res.status(200).json(new ApiResponse(200, projectMember, "project member deleted"))
 
     } catch (error) {
         return next(error)
