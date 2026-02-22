@@ -136,8 +136,6 @@ const updateProject = async (req, res, next) => {
     }
 }
 
-
-
 const deleteProject = async (req, res, next) => {
     try {
         const { projectId } = req.params
@@ -184,6 +182,56 @@ const addMembersToProject = async (req, res, next) => {
 
 const getProjectMembers = async (req, res, next) => {
     try {
+        const { projectId } = req.params
+
+        const project = await Project.findById(projectId)
+        if (!project) {
+            throw new ApiResponse(404, "project not found")
+        }
+        const projectMembers = await ProjectMember.aggregate([
+            {
+                $match: {
+                    project: new mongoose.Types.ObjectId(projectId)
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "user",
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                username: 1,
+                                fullName: 1,
+                                avatar: 1
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $addFields: {
+                    user: {
+                        $arrayElemAt: ["$user", 0]
+                    }
+                }
+            },
+            {
+                $project: {
+                    project: 1,
+                    user: 1,
+                    role: 1,
+                    _id: 0,
+                    createdAt: 1,
+                    updatedAt: 1,
+                }
+            }
+        ])
+
+        return res.status(200).json(new ApiResponse(200, projectMembers, "project members fetched successfully"))
 
     } catch (error) {
         return next(error)
