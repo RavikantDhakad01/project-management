@@ -72,14 +72,14 @@ const getProjects = async (req, res, next) => {
 const getProjectById = async (req, res, next) => {
     try {
 
-        const { projectId } = req.body
+        const { projectId } = req.params
         const project = await Project.findById(projectId)
 
         if (!project) {
             throw new apiErrors(404, "project not found")
         }
 
-        return res.status(200).json(new ApiResponse(200, project, "project details fethed successfully"))
+        return res.status(200).json(new ApiResponse(200, project, "project details fetched successfully"))
 
     } catch (error) {
         return next(error)
@@ -105,7 +105,7 @@ const createProject = async (req, res, next) => {
             project: new mongoose.Types.ObjectId(project._id),
             role: UserRolesEnum.ADMIN
         })
-        return res.status(200).json(new ApiResponse(200, project, "Project completed successfully"))
+        return res.status(201).json(new ApiResponse(201, project, "Project completed successfully"))
     } catch (error) {
         return next(error)
     }
@@ -143,7 +143,7 @@ const deleteProject = async (req, res, next) => {
         if (!deletedProject) {
             throw new apiErrors(404, "Project not found")
         }
-        return res.status(200, deletedProject, "Project deleted sucessfully")
+        return res.status(200).json(200, deletedProject, "Project deleted successfully")
     } catch (error) {
         return next(error)
     }
@@ -186,7 +186,7 @@ const getProjectMembers = async (req, res, next) => {
 
         const project = await Project.findById(projectId)
         if (!project) {
-            throw new ApiResponse(404, "project not found")
+            throw new apiErrors(404, "project not found")
         }
         const projectMembers = await ProjectMember.aggregate([
             {
@@ -243,7 +243,7 @@ const updateMemberRole = async (req, res, next) => {
         const { projectId, userId } = req.params
         const { newRole } = req.body
         if (!AvailableUserRole.includes(newRole)) {
-            throw new apiErrors(400, "invaild member role")
+            throw new apiErrors(400, "invalid member role")
         }
 
         const updatedMemberRole = await ProjectMember.findOneAndUpdate({
@@ -260,7 +260,7 @@ const updateMemberRole = async (req, res, next) => {
             throw new apiErrors(404, "project member not found")
         }
 
-        return res.status(200).json(new ApiResponse(200, updateMemberRole, "member role updated successfully"))
+        return res.status(200).json(new ApiResponse(200, updatedMemberRole, "member role updated successfully"))
 
 
     } catch (error) {
