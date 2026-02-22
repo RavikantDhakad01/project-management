@@ -153,7 +153,30 @@ const deleteProject = async (req, res, next) => {
 
 const addMembersToProject = async (req, res, next) => {
     try {
+        const { email, role } = req.body
+        const { projectId } = req.params
 
+        const user = await User.findOne({ email })
+
+        if (!user) {
+            throw new apiErrors(404, "user not found")
+        }
+
+        const addedProjectMember = await ProjectMember.findOneAndUpdate({
+            user: new mongoose.Types.ObjectId(user._id),
+            project: new mongoose.Types.ObjectId(projectId)
+        },
+            {
+                user: new mongoose.Types.ObjectId(user._id),
+                project: new mongoose.Types.ObjectId(projectId),
+                role
+            },
+            {
+                new: true,
+                upsert: true
+            })
+
+        return res.status(200).json(new ApiResponse(200, addedProjectMember, "project member added"))
     } catch (error) {
         return next(error)
     }
