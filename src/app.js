@@ -22,15 +22,13 @@ app.use(
 );
 import HeathCheckRouter from './routes/HealthCheck.routes.js'
 import authRouter from "./routes/auth.routes.js"
+import projectRouter from "./routes/projects.routes.js"
+
 app.use("/api/v1/heathcheck", HeathCheckRouter)
 app.use("/api/v1/auth", authRouter)
+app.use("/api/v1/projects", projectRouter)
 
-app.get("/", (req, res) => {
-  res.send("This is home page");
-});
-app.get("/login", (req, res) => {
-  res.end("This is login page");
-});
+
 export default app;
 
 
