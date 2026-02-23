@@ -33,30 +33,31 @@ const validateProjectPermission = (roles = []) => {
 
       if (!projectId) {
         throw new apiErrors(400, "project id is missing ")
-
-        const projectmember = await ProjectMember.findOne({
-          project: new mongoose.Types.ObjectId(projectId),
-          user: new mongoose.Types.ObjectId(req.user._id)
-        })
-        if (!projectmember) {
-          throw new apiErrors(400, "project not found")
-        }
-
-        const givenRole = projectmember.role
-        req.user.role = givenRole
-
-        if (!roles.includes(givenRole)) {
-          throw new apiErrors(403,
-            "You do not have permission to perform this action")
-        }
-
-        next()
       }
-    } catch (error) {
+      const projectmember = await ProjectMember.findOne({
+        project: new mongoose.Types.ObjectId(projectId),
+        user: new mongoose.Types.ObjectId(req.user._id)
+      })
+      if (!projectmember) {
+        throw new apiErrors(400, "project not found")
+      }
+
+      const givenRole = projectmember.role
+      req.user.role = givenRole
+
+      if (!roles.includes(givenRole)) {
+        throw new apiErrors(403,
+          "You do not have permission to perform this action")
+      }
+
+      next()
+    }
+    catch (error) {
       return next(error)
     }
   }
 }
+
 
 
 export {
